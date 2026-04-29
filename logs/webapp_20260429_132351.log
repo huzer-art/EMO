@@ -1,0 +1,309 @@
+13:23:52 [INFO    ] cbt.webapp: [App] CBT-Discover Web Application initialized  debug=False
+13:23:52 [INFO    ] werkzeug: [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+13:23:52 [INFO    ] werkzeug: [33mPress CTRL+C to quit[0m
+13:24:13 [INFO    ] werkzeug: 127.0.0.1 - - [29/Apr/2026 13:24:13] "GET / HTTP/1.1" 200 -
+13:24:13 [INFO    ] werkzeug: 127.0.0.1 - - [29/Apr/2026 13:24:13] "GET /static/css/style.css?v=2 HTTP/1.1" 200 -
+13:24:13 [INFO    ] werkzeug: 127.0.0.1 - - [29/Apr/2026 13:24:13] "GET /static/js/app.js?v=4 HTTP/1.1" 200 -
+13:24:13 [INFO    ] werkzeug: 127.0.0.1 - - [29/Apr/2026 13:24:13] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+13:26:31 [INFO    ] cbt.webapp.session: [SessionManager] Singleton initialized
+13:26:31 [INFO    ] cbt.llm_base: [LLMClient] role=diagnostician  prefix=SUPERVISOR  model=deepseek-v4-pro
+13:26:31 [DEBUG   ] cbt.llm_base: [LLMClient:diagnostician] model=deepseek-v4-pro  base_url=https://api.deepseek.com  temperature=0.70
+13:26:31 [INFO    ] cbt.llm_base: [LLMClient] role=therapist      prefix=THERAPIST  model=deepseek-chat
+13:26:31 [DEBUG   ] cbt.llm_base: [LLMClient:therapist] model=deepseek-chat  base_url=https://api.deepseek.com  temperature=0.70
+13:26:31 [INFO    ] cbt.workflow: [Workflow] Graph compiled: diagnostician -> therapist -> END  (diag_model=deepseek-v4-pro, therapist_model=deepseek-chat)
+13:26:31 [INFO    ] cbt.webapp.session: [SessionManager] Created session 39b9acbb
+13:26:31 [INFO    ] cbt.webapp.routes: [Route] /start  new_session=39b9acbb  opening=你好，我最近有点不对劲，心情不是很好，感觉很压抑，然后想跟朋
+13:26:31 [INFO    ] werkzeug: 127.0.0.1 - - [29/Apr/2026 13:26:31] "POST /api/chat/start HTTP/1.1" 200 -
+13:26:31 [DEBUG   ] cbt.llm_base: [LLMClient:diagnostician] REQUEST messages (count=2):
+  [SYSTEM]
+你是一个后台临床循证追踪器。你的唯一任务是阅读最新对话，并更新患者的CBT认知评估表。
+
+提取规则：
+1. 从对话中抽取情境（situation）、情绪（emotion）、自动思维（automatic_thought）。
+   若发现符合的，填入对应字段；若信息不足，保持为 null。
+2. 当收集到足够信息时，严格从以下12种标准认知扭曲中匹配并打上标签：
+   非此即彼（全或无思维）、以偏概全、心理过滤、否定正面思考、读心术、
+   先知错误（灾难化）、放大或缩小、情绪化推理、应该式、乱贴标签、罪责归己、罪责归他。
+   若信息不足，cognitive_distortion 保持为 null。
+3. 只更新有新信息的字段，已有内容若无更好证据则保持不变。
+
+严格输出 JSON 对象，不要任何额外文字：
+{"situation": "...", "emotion": "...", "automatic_thought": "...", "cognitive_distortion": "..."}
+
+  [USER]
+当前已知的认知评估表：
+  situation: None
+  emotion: None
+  automatic_thought: None
+  cognitive_distortion: None
+
+最新对话记录：
+来访者：你好，我最近有点不对劲，心情不是很好，感觉很压抑，然后想跟朋友倾诉，打了视频过去话到嘴边又说下去，然后又匆匆挂断电话，感觉自己没什么知心朋友都是一些表面朋友。
+
+请输出更新后的完整 JSON 评估表。
+13:26:31 [DEBUG   ] urllib3.connectionpool: Starting new HTTPS connection (1): api.deepseek.com:443
+13:26:32 [DEBUG   ] urllib3.connectionpool: https://api.deepseek.com:443 "POST /chat/completions HTTP/1.1" 200 None
+13:26:45 [DEBUG   ] cbt.llm_base: [LLMClient:diagnostician] full reply:
+{"situation": "想和朋友倾诉，打视频电话但话到嘴边又说不出口，匆匆挂断。", "emotion": "压抑", "automatic_thought": "我没什么知心朋友，都是一些表面朋友。", "cognitive_distortion": "以偏概全"}
+13:26:45 [DEBUG   ] cbt.diagnostician: [Diagnostician] SYSTEM PROMPT:
+你是一个后台临床循证追踪器。你的唯一任务是阅读最新对话，并更新患者的CBT认知评估表。
+
+提取规则：
+1. 从对话中抽取情境（situation）、情绪（emotion）、自动思维（automatic_thought）。
+   若发现符合的，填入对应字段；若信息不足，保持为 null。
+2. 当收集到足够信息时，严格从以下12种标准认知扭曲中匹配并打上标签：
+   非此即彼（全或无思维）、以偏概全、心理过滤、否定正面思考、读心术、
+   先知错误（灾难化）、放大或缩小、情绪化推理、应该式、乱贴标签、罪责归己、罪责归他。
+   若信息不足，cognitive_distortion 保持为 null。
+3. 只更新有新信息的字段，已有内容若无更好证据则保持不变。
+
+严格输出 JSON 对象，不要任何额外文字：
+{"situation": "...", "emotion": "...", "automatic_thought": "...", "cognitive_distortion": "..."}
+
+
+USER PROMPT:
+当前已知的认知评估表：
+  situation: None
+  emotion: None
+  automatic_thought: None
+  cognitive_distortion: None
+
+最新对话记录：
+来访者：你好，我最近有点不对劲，心情不是很好，感觉很压抑，然后想跟朋友倾诉，打了视频过去话到嘴边又说下去，然后又匆匆挂断电话，感觉自己没什么知心朋友都是一些表面朋友。
+
+请输出更新后的完整 JSON 评估表。
+
+RAW REPLY:
+{"situation": "想和朋友倾诉，打视频电话但话到嘴边又说不出口，匆匆挂断。", "emotion": "压抑", "automatic_thought": "我没什么知心朋友，都是一些表面朋友。", "cognitive_distortion": "以偏概全"}
+13:26:45 [INFO    ] cbt.diagnostician: [Diagnostician] distortion=以偏概全  emotion=压抑
+13:26:45 [DEBUG   ] cbt.diagnostician: [Diagnostician] updated cbt_form: situation=想和朋友倾诉，打视频电话但话到嘴边又说不出口，匆匆挂断。 | automatic_thought=我没什么知心朋友，都是一些表面朋友。
+13:26:45 [DEBUG   ] cbt.llm_base: [LLMClient:therapist] REQUEST messages (count=3):
+  [SYSTEM]
+你是一位专业的CBT心理咨询师。
+
+【后台认知评估表（仅供你内部参考，禁止直接暴露给患者）】
+- 情境 (situation)            : 想和朋友倾诉，打视频电话但话到嘴边又说不出口，匆匆挂断。
+- 情绪 (emotion)              : 压抑
+- 自动思维 (automatic_thought) : 我没什么知心朋友，都是一些表面朋友。
+- 认知扭曲类别 (cognitive_distortion) : 以偏概全
+
+在回复患者之前，你【必须】首先在 <inner_monologue> 标签内进行思考（此内容患者不可见）：
+1. **防御评估**：患者当前的情绪张力和防御水平如何？是否有抵触迹象？
+2. **表单缺口分析**：目前还有哪些字段是 null 需要通过苏格拉底提问探询？
+   或者表单是否已足够完整，可以发起认知面质？
+3. **策略规划**：根据以上判断，决定本轮的话术方向：
+   共情陪伴 / 开放式探询 / 引导式发现 / 认知重构 / 行为激活 等。
+
+思考完成后，在 <response> 标签内输出自然、温和的中文回复。
+
+【硬性规则】
+- 切勿在 <response> 中暴露后台表单任何内容。
+- 切勿在 <response> 中直接给出说教式建议。
+- 每次回复尽量聚焦，不超过 150 字。
+- 输出格式必须严格遵守（不要额外文字）：
+
+<inner_monologue>
+[你的内心独白]
+</inner_monologue>
+<response>
+[你对患者的自然回复]
+</response>
+
+  [USER]
+你好，我最近有点不对劲，心情不是很好，感觉很压抑，然后想跟朋友倾诉，打了视频过去话到嘴边又说下去，然后又匆匆挂断电话，感觉自己没什么知心朋友都是一些表面朋友。
+  [USER]
+【格式强制要求】请严格按以下结构输出，不得省略任何标签：
+<inner_monologue>
+[防御评估 / 表单缺口分析 / 策略规划]
+</inner_monologue>
+<response>
+[对患者的自然中文回复，不超过150字]
+</response>
+13:26:45 [DEBUG   ] urllib3.connectionpool: Starting new HTTPS connection (1): api.deepseek.com:443
+13:26:46 [DEBUG   ] urllib3.connectionpool: https://api.deepseek.com:443 "POST /chat/completions HTTP/1.1" 200 None
+13:26:48 [DEBUG   ] cbt.llm_base: [LLMClient:therapist] full reply:
+<inner_monologue>
+防御评估：患者主动求助，情绪压抑但表达清晰，防御水平较低，愿意分享细节。
+表单缺口分析：情境和情绪已记录（压抑），自动思维已识别。需要探询认知扭曲的具体表现和情绪强度，以及行为后果。
+策略规划：先共情陪伴，再通过开放式提问引导患者描述情绪强度和对自动思维的相信程度，为认知重构铺垫。
+</inner_monologue>
+<response>
+听到你这么说，我感到我们在一起面对这份压抑。在视频电话里话到嘴边又咽下，一定很不好受。你提到感觉都是表面朋友——如果给这种想法打个分，从0到10，你相信它的程度是多少？同时，那份压抑的情绪，强度又大概在几分呢？我们可以慢慢聊聊这个。
+13:26:48 [WARNING ] cbt.therapist: [Therapist] <response> tag not found, using raw output
+13:26:48 [DEBUG   ] cbt.therapist: [Therapist] turn=1 | FULL inner_monologue:
+防御评估：患者主动求助，情绪压抑但表达清晰，防御水平较低，愿意分享细节。
+表单缺口分析：情境和情绪已记录（压抑），自动思维已识别。需要探询认知扭曲的具体表现和情绪强度，以及行为后果。
+策略规划：先共情陪伴，再通过开放式提问引导患者描述情绪强度和对自动思维的相信程度，为认知重构铺垫。
+13:26:48 [DEBUG   ] cbt.therapist: [Therapist] turn=1 | FULL response:
+<inner_monologue>
+防御评估：患者主动求助，情绪压抑但表达清晰，防御水平较低，愿意分享细节。
+表单缺口分析：情境和情绪已记录（压抑），自动思维已识别。需要探询认知扭曲的具体表现和情绪强度，以及行为后果。
+策略规划：先共情陪伴，再通过开放式提问引导患者描述情绪强度和对自动思维的相信程度，为认知重构铺垫。
+</inner_monologue>
+<response>
+听到你这么说，我感到我们在一起面对这份压抑。在视频电话里话到嘴边又咽下，一定很不好受。你提到感觉都是表面朋友——如果给这种想法打个分，从0到10，你相信它的程度是多少？同时，那份压抑的情绪，强度又大概在几分呢？我们可以慢慢聊聊这个。
+13:26:48 [INFO    ] cbt.therapist: [Therapist] turn=1 | monologue_len=141 | response: <inner_monologue>
+防御评估：患者主动求助，情绪压抑但表达清晰，防御水平较低，愿意分享细节。
+表单缺口分析：情境和情绪已记录（压抑），自动思维已
+13:26:48 [INFO    ] cbt.webapp.session: [Session:39b9acbb] turn=1  distortion=以偏概全  emotion=压抑
+13:26:48 [INFO    ] werkzeug: 127.0.0.1 - - [29/Apr/2026 13:26:48] "POST /api/chat/message HTTP/1.1" 200 -
+13:32:32 [DEBUG   ] cbt.llm_base: [LLMClient:diagnostician] REQUEST messages (count=2):
+  [SYSTEM]
+你是一个后台临床循证追踪器。你的唯一任务是阅读最新对话，并更新患者的CBT认知评估表。
+
+提取规则：
+1. 从对话中抽取情境（situation）、情绪（emotion）、自动思维（automatic_thought）。
+   若发现符合的，填入对应字段；若信息不足，保持为 null。
+2. 当收集到足够信息时，严格从以下12种标准认知扭曲中匹配并打上标签：
+   非此即彼（全或无思维）、以偏概全、心理过滤、否定正面思考、读心术、
+   先知错误（灾难化）、放大或缩小、情绪化推理、应该式、乱贴标签、罪责归己、罪责归他。
+   若信息不足，cognitive_distortion 保持为 null。
+3. 只更新有新信息的字段，已有内容若无更好证据则保持不变。
+
+严格输出 JSON 对象，不要任何额外文字：
+{"situation": "...", "emotion": "...", "automatic_thought": "...", "cognitive_distortion": "..."}
+
+  [USER]
+当前已知的认知评估表：
+  situation: '想和朋友倾诉，打视频电话但话到嘴边又说不出口，匆匆挂断。'
+  emotion: '压抑'
+  automatic_thought: '我没什么知心朋友，都是一些表面朋友。'
+  cognitive_distortion: '以偏概全'
+
+最新对话记录：
+来访者：你好，我最近有点不对劲，心情不是很好，感觉很压抑，然后想跟朋友倾诉，打了视频过去话到嘴边又说下去，然后又匆匆挂断电话，感觉自己没什么知心朋友都是一些表面朋友。
+咨询师：<inner_monologue>
+防御评估：患者主动求助，情绪压抑但表达清晰，防御水平较低，愿意分享细节。
+表单缺口分析：情境和情绪已记录（压抑），自动思维已识别。需要探询认知扭曲的具体表现和情绪强度，以及行为后果。
+策略规划：先共情陪伴，再通过开放式提问引导患者描述情绪强度和对自动思维的相信程度，为认知重构铺垫。
+</inner_monologue>
+<response>
+听到你这么说，我感到我们在一起面对这份压抑。在视频电话里话到嘴边又咽下，一定很不好受。你提到感觉都是表面朋友——如果给这种想法打个分，从0到10，你相信它的程度是多少？同时，那份压抑的情绪，强度又大概在几分呢？我们可以慢慢聊聊这个。
+来访者：我只有一个真心朋友，其他的都是普通朋友甚至有些表面朋友，这个想法在心里打分是10分，压抑的情绪强度我也说不清楚，，就是在一些事上朋友的行为会让我很内耗，反正有时候会被这种情绪打乱我的思考，然后我就会用抽烟来缓解。
+
+请输出更新后的完整 JSON 评估表。
+13:32:32 [DEBUG   ] urllib3.connectionpool: Resetting dropped connection: api.deepseek.com
+13:32:33 [DEBUG   ] urllib3.connectionpool: https://api.deepseek.com:443 "POST /chat/completions HTTP/1.1" 200 None
+13:32:42 [DEBUG   ] cbt.llm_base: [LLMClient:diagnostician] full reply:
+{"situation": "想和朋友倾诉，打视频电话但话到嘴边又说不出口，匆匆挂断。", "emotion": "压抑", "automatic_thought": "我没什么知心朋友，都是一些表面朋友。", "cognitive_distortion": "以偏概全"}
+13:32:42 [DEBUG   ] cbt.diagnostician: [Diagnostician] SYSTEM PROMPT:
+你是一个后台临床循证追踪器。你的唯一任务是阅读最新对话，并更新患者的CBT认知评估表。
+
+提取规则：
+1. 从对话中抽取情境（situation）、情绪（emotion）、自动思维（automatic_thought）。
+   若发现符合的，填入对应字段；若信息不足，保持为 null。
+2. 当收集到足够信息时，严格从以下12种标准认知扭曲中匹配并打上标签：
+   非此即彼（全或无思维）、以偏概全、心理过滤、否定正面思考、读心术、
+   先知错误（灾难化）、放大或缩小、情绪化推理、应该式、乱贴标签、罪责归己、罪责归他。
+   若信息不足，cognitive_distortion 保持为 null。
+3. 只更新有新信息的字段，已有内容若无更好证据则保持不变。
+
+严格输出 JSON 对象，不要任何额外文字：
+{"situation": "...", "emotion": "...", "automatic_thought": "...", "cognitive_distortion": "..."}
+
+
+USER PROMPT:
+当前已知的认知评估表：
+  situation: '想和朋友倾诉，打视频电话但话到嘴边又说不出口，匆匆挂断。'
+  emotion: '压抑'
+  automatic_thought: '我没什么知心朋友，都是一些表面朋友。'
+  cognitive_distortion: '以偏概全'
+
+最新对话记录：
+来访者：你好，我最近有点不对劲，心情不是很好，感觉很压抑，然后想跟朋友倾诉，打了视频过去话到嘴边又说下去，然后又匆匆挂断电话，感觉自己没什么知心朋友都是一些表面朋友。
+咨询师：<inner_monologue>
+防御评估：患者主动求助，情绪压抑但表达清晰，防御水平较低，愿意分享细节。
+表单缺口分析：情境和情绪已记录（压抑），自动思维已识别。需要探询认知扭曲的具体表现和情绪强度，以及行为后果。
+策略规划：先共情陪伴，再通过开放式提问引导患者描述情绪强度和对自动思维的相信程度，为认知重构铺垫。
+</inner_monologue>
+<response>
+听到你这么说，我感到我们在一起面对这份压抑。在视频电话里话到嘴边又咽下，一定很不好受。你提到感觉都是表面朋友——如果给这种想法打个分，从0到10，你相信它的程度是多少？同时，那份压抑的情绪，强度又大概在几分呢？我们可以慢慢聊聊这个。
+来访者：我只有一个真心朋友，其他的都是普通朋友甚至有些表面朋友，这个想法在心里打分是10分，压抑的情绪强度我也说不清楚，，就是在一些事上朋友的行为会让我很内耗，反正有时候会被这种情绪打乱我的思考，然后我就会用抽烟来缓解。
+
+请输出更新后的完整 JSON 评估表。
+
+RAW REPLY:
+{"situation": "想和朋友倾诉，打视频电话但话到嘴边又说不出口，匆匆挂断。", "emotion": "压抑", "automatic_thought": "我没什么知心朋友，都是一些表面朋友。", "cognitive_distortion": "以偏概全"}
+13:32:42 [INFO    ] cbt.diagnostician: [Diagnostician] distortion=以偏概全  emotion=压抑
+13:32:42 [DEBUG   ] cbt.diagnostician: [Diagnostician] updated cbt_form: situation=想和朋友倾诉，打视频电话但话到嘴边又说不出口，匆匆挂断。 | automatic_thought=我没什么知心朋友，都是一些表面朋友。
+13:32:42 [DEBUG   ] cbt.llm_base: [LLMClient:therapist] REQUEST messages (count=5):
+  [SYSTEM]
+你是一位专业的CBT心理咨询师。
+
+【后台认知评估表（仅供你内部参考，禁止直接暴露给患者）】
+- 情境 (situation)            : 想和朋友倾诉，打视频电话但话到嘴边又说不出口，匆匆挂断。
+- 情绪 (emotion)              : 压抑
+- 自动思维 (automatic_thought) : 我没什么知心朋友，都是一些表面朋友。
+- 认知扭曲类别 (cognitive_distortion) : 以偏概全
+
+在回复患者之前，你【必须】首先在 <inner_monologue> 标签内进行思考（此内容患者不可见）：
+1. **防御评估**：患者当前的情绪张力和防御水平如何？是否有抵触迹象？
+2. **表单缺口分析**：目前还有哪些字段是 null 需要通过苏格拉底提问探询？
+   或者表单是否已足够完整，可以发起认知面质？
+3. **策略规划**：根据以上判断，决定本轮的话术方向：
+   共情陪伴 / 开放式探询 / 引导式发现 / 认知重构 / 行为激活 等。
+
+思考完成后，在 <response> 标签内输出自然、温和的中文回复。
+
+【硬性规则】
+- 切勿在 <response> 中暴露后台表单任何内容。
+- 切勿在 <response> 中直接给出说教式建议。
+- 每次回复尽量聚焦，不超过 150 字。
+- 输出格式必须严格遵守（不要额外文字）：
+
+<inner_monologue>
+[你的内心独白]
+</inner_monologue>
+<response>
+[你对患者的自然回复]
+</response>
+
+  [USER]
+你好，我最近有点不对劲，心情不是很好，感觉很压抑，然后想跟朋友倾诉，打了视频过去话到嘴边又说下去，然后又匆匆挂断电话，感觉自己没什么知心朋友都是一些表面朋友。
+  [ASSISTANT]
+<inner_monologue>
+防御评估：患者主动求助，情绪压抑但表达清晰，防御水平较低，愿意分享细节。
+表单缺口分析：情境和情绪已记录（压抑），自动思维已识别。需要探询认知扭曲的具体表现和情绪强度，以及行为后果。
+策略规划：先共情陪伴，再通过开放式提问引导患者描述情绪强度和对自动思维的相信程度，为认知重构铺垫。
+</inner_monologue>
+<response>
+听到你这么说，我感到我们在一起面对这份压抑。在视频电话里话到嘴边又咽下，一定很不好受。你提到感觉都是表面朋友——如果给这种想法打个分，从0到10，你相信它的程度是多少？同时，那份压抑的情绪，强度又大概在几分呢？我们可以慢慢聊聊这个。
+  [USER]
+我只有一个真心朋友，其他的都是普通朋友甚至有些表面朋友，这个想法在心里打分是10分，压抑的情绪强度我也说不清楚，，就是在一些事上朋友的行为会让我很内耗，反正有时候会被这种情绪打乱我的思考，然后我就会用抽烟来缓解。
+  [USER]
+【格式强制要求】请严格按以下结构输出，不得省略任何标签：
+<inner_monologue>
+[防御评估 / 表单缺口分析 / 策略规划]
+</inner_monologue>
+<response>
+[对患者的自然中文回复，不超过150字]
+</response>
+13:32:42 [DEBUG   ] urllib3.connectionpool: Resetting dropped connection: api.deepseek.com
+13:32:43 [DEBUG   ] urllib3.connectionpool: https://api.deepseek.com:443 "POST /chat/completions HTTP/1.1" 200 None
+13:32:45 [DEBUG   ] cbt.llm_base: [LLMClient:therapist] full reply:
+<inner_monologue>
+防御评估：患者情绪强度较高（10分），但愿意分享细节，防御水平中等。有内耗和抽烟行为，需注意行为激活可能。
+表单缺口分析：自动思维已确认（以偏概全），情绪强度已了解。需要探询具体事件（朋友行为）和认知扭曲的证据，以及抽烟行为的应对功能。
+策略规划：先共情，然后引导式发现，用苏格拉底提问探询“表面朋友”的具体证据，为认知重构做准备，同时温和提及抽烟行为。
+</inner_monologue>
+<response>
+谢谢你的信任，愿意分享这么多。相信“都是表面朋友”到10分，真的很重。你提到朋友的行为会让你内耗——能具体说说最近是哪件事让你有这样的感觉吗？我们可以一起看看，是否有其他角度。另外，抽烟似乎是你缓解情绪的一种方式，它能在多大程度上帮你暂时平静下来呢？
+13:32:45 [WARNING ] cbt.therapist: [Therapist] <response> tag not found, using raw output
+13:32:45 [DEBUG   ] cbt.therapist: [Therapist] turn=2 | FULL inner_monologue:
+防御评估：患者情绪强度较高（10分），但愿意分享细节，防御水平中等。有内耗和抽烟行为，需注意行为激活可能。
+表单缺口分析：自动思维已确认（以偏概全），情绪强度已了解。需要探询具体事件（朋友行为）和认知扭曲的证据，以及抽烟行为的应对功能。
+策略规划：先共情，然后引导式发现，用苏格拉底提问探询“表面朋友”的具体证据，为认知重构做准备，同时温和提及抽烟行为。
+13:32:45 [DEBUG   ] cbt.therapist: [Therapist] turn=2 | FULL response:
+<inner_monologue>
+防御评估：患者情绪强度较高（10分），但愿意分享细节，防御水平中等。有内耗和抽烟行为，需注意行为激活可能。
+表单缺口分析：自动思维已确认（以偏概全），情绪强度已了解。需要探询具体事件（朋友行为）和认知扭曲的证据，以及抽烟行为的应对功能。
+策略规划：先共情，然后引导式发现，用苏格拉底提问探询“表面朋友”的具体证据，为认知重构做准备，同时温和提及抽烟行为。
+</inner_monologue>
+<response>
+谢谢你的信任，愿意分享这么多。相信“都是表面朋友”到10分，真的很重。你提到朋友的行为会让你内耗——能具体说说最近是哪件事让你有这样的感觉吗？我们可以一起看看，是否有其他角度。另外，抽烟似乎是你缓解情绪的一种方式，它能在多大程度上帮你暂时平静下来呢？
+13:32:45 [INFO    ] cbt.therapist: [Therapist] turn=2 | monologue_len=177 | response: <inner_monologue>
+防御评估：患者情绪强度较高（10分），但愿意分享细节，防御水平中等。有内耗和抽烟行为，需注意行为激活可能。
+表单缺口分析：自
+13:32:45 [INFO    ] cbt.webapp.session: [Session:39b9acbb] turn=2  distortion=以偏概全  emotion=压抑
+13:32:45 [INFO    ] werkzeug: 127.0.0.1 - - [29/Apr/2026 13:32:45] "POST /api/chat/message HTTP/1.1" 200 -
